@@ -1,0 +1,27 @@
+name: Docker Image Build
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  docker:
+    name: Docker Image
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Login to docker hub
+      uses: actions-hub/docker/login@master
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+    - name: Build image
+      run: docker build -t indexyz/catboat .
+
+    - name: Push to docker hub
+      uses: actions-hub/docker@master
+      with:
+        args: push indexyz/catboat

@@ -58,3 +58,9 @@ device.json
 
 # idea files
 .idea
+
+bin
+.settings
+
+.project
+.classpath
