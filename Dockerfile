@@ -9,4 +9,4 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/CatBoat*.jar /app/CatBoat.jar
 
 ENTRYPOINT [ "java" ]
-CMD [ "-jar /app/CatBoat.jar" ]
+CMD [ "-jar", "/app/CatBoat.jar" ]
