@@ -14,7 +14,7 @@ const val USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWeb
 const val USER_INFO_API = "https://api.bilibili.com/x/space/acc/info?mid=%d"
 const val USER_STAT_API = "https://api.bilibili.com/x/relation/stat?vmid=%d"
 const val VIDEO_INFO_API = "https://api.bilibili.com/x/web-interface/view?bvid=%s"
-const val VIDEO_SEARCH_API = "https://api.bilibili.com/x/web-interface/search/all/v2?highlight=0&keyword=%s"
+const val VIDEO_SEARCH_API = "https://api.bilibili.com/x/web-interface/search/type?highlight=0&search_type=video&keyword=%s"
 
 fun cleanUrl(url: String): String {
     val index = url.indexOf("?")
@@ -160,7 +160,6 @@ fun urlEncode(i: String): String {
     return URLEncoder.encode(i, StandardCharsets.UTF_8.toString())
 }
 
-@SuppressWarnings("unchecked")
 fun searchVideo(title: String): String? {
     val searchRes = VIDEO_SEARCH_API.format(urlEncode(title))
         .httpGet()
@@ -173,17 +172,11 @@ fun searchVideo(title: String): String? {
         return null
     }
 
-//    println(data.getJSONObject("data").getJSONArray("result"))
-    val res = (data.getJSONObject("data").getJSONArray("result").stream() as Stream<JSONObject>)
-        .filter {
-            it.getString("result_type") == "video"
-        }
-        .findFirst()
-        .get()
-
-    if (res.getJSONArray("data").size > 0) {
-        return res.getJSONArray("data").getJSONObject(0).getString("bvid")
+    val res = (data.getJSONObject("data").getJSONArray("result"))
+    if (res.size <= 0) {
+        return null
     }
+    val video = res.getJSONObject(0)
 
-    return null
+    return video.getString("bvid")
 }
