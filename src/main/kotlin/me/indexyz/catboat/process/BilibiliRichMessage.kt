@@ -22,19 +22,19 @@ object BilibiliRichMessage {
             Regex("(https://b23\\.tv/[\\w]{6})") finding {
                 if (it.groups.isNotEmpty()) {
                     val bv = parseUrl(it.groups[0]!!.value)?.let { it1 -> getBVFromUrl(it1) }
-                    bv?.let { it1 ->
-                        val video = queryVideo(it1)
-                        if (video != null) {
-                            val str = video.ReadableString()
-                            this.reply(str)
-                        }
-                    }
+                    processBV(bv, this)
+                }
+            }
+
+            Regex("(BV[\\w]{1,10})") finding {
+                if (it.groups.isNotEmpty()) {
+                    processBV(it.groups[0]!!.value, this)
                 }
             }
         }
     }
 
-    fun isTargetMessage(message: JSONObject): Boolean {
+    private fun isTargetMessage(message: JSONObject): Boolean {
         if (!message.containsKey("appID")) {
             return false
         }
@@ -46,7 +46,7 @@ object BilibiliRichMessage {
         return false
     }
 
-    suspend fun onMessage(message: JSONObject, event: MessageEvent) {
+    private suspend fun onMessage(message: JSONObject, event: MessageEvent) {
         if (!message.containsKey("meta")) {
             return
         }
@@ -62,10 +62,12 @@ object BilibiliRichMessage {
 
         val bv = parseUrl(url)?.let { getBVFromUrl(it) }
 
-        bv?.let {
-            val video = queryVideo(it) ?: return
-            val str = video.ReadableString()
-            event.reply(str)
-        }
+        processBV(bv, event)
+    }
+
+    private suspend fun processBV(bvNumber: String?, event: MessageEvent) {
+        val video = bvNumber?.let { queryVideo(it) } ?: return
+        val str = video.ReadableString()
+        event.reply(str)
     }
 }
