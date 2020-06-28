@@ -39,7 +39,9 @@ object BilibiliRichMessage {
             return false
         }
 
-        if (message.getString("appID") == "100951776") {
+        val appId = message.getString("appID")
+
+        if (appId == "100951776" || appId == "1109937557") {
             return true
         }
 
