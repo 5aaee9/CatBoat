@@ -34,4 +34,11 @@ class BilibiliUtilsTest {
         val res = getBVFromUrl("https://www.bilibili.com/video/BV1Av411z7KG")
         assert(res == "BV1Av411z7KG")
     }
+
+    @Test
+    fun `Test search video`() {
+        val res = searchVideo("【新人NB神作】李天香永远的东方日鸟传")
+
+        assert(res == "BV1Hs411S7p4")
+    }
 }

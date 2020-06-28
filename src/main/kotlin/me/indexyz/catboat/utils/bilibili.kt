@@ -6,11 +6,15 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.httpGet
 import java.net.URL
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import java.util.stream.Stream
 
 const val USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36"
 const val USER_INFO_API = "https://api.bilibili.com/x/space/acc/info?mid=%d"
 const val USER_STAT_API = "https://api.bilibili.com/x/relation/stat?vmid=%d"
 const val VIDEO_INFO_API = "https://api.bilibili.com/x/web-interface/view?bvid=%s"
+const val VIDEO_SEARCH_API = "https://api.bilibili.com/x/web-interface/search/all/v2?highlight=0&keyword=%s"
 
 fun cleanUrl(url: String): String {
     val index = url.indexOf("?")
@@ -21,16 +25,16 @@ fun cleanUrl(url: String): String {
 }
 
 fun parseUrl(url: String): String? {
-    val (request, response, result) = Fuel.get(url)
+    val res = Fuel.get(url)
         .header(Headers.USER_AGENT, USER_AGENT)
         .allowRedirects(false)
         .response()
 
-    if (!response.headers.containsKey("Location")) {
+    if (!res.second.headers.containsKey("Location")) {
         return null
     }
 
-    return cleanUrl(response.headers["Location"].stream().findFirst().get())
+    return cleanUrl(res.second.headers["Location"].stream().findFirst().get())
 }
 
 fun getBVFromUrl(url: String): String? {
@@ -150,4 +154,36 @@ fun queryVideo(bvNumber: String): BilibiliVideoInfo? {
         stat.getInteger("favorite"),
         owner
     )
+}
+
+fun urlEncode(i: String): String {
+    return URLEncoder.encode(i, StandardCharsets.UTF_8.toString())
+}
+
+@SuppressWarnings("unchecked")
+fun searchVideo(title: String): String? {
+    val searchRes = VIDEO_SEARCH_API.format(urlEncode(title))
+        .httpGet()
+        .header(Headers.USER_AGENT, USER_AGENT)
+        .responseString()
+
+    val data = JSON.parseObject(searchRes.third.get())
+
+    if (data.getInteger("code") != 0) {
+        return null
+    }
+
+//    println(data.getJSONObject("data").getJSONArray("result"))
+    val res = (data.getJSONObject("data").getJSONArray("result").stream() as Stream<JSONObject>)
+        .filter {
+            it.getString("result_type") == "video"
+        }
+        .findFirst()
+        .get()
+
+    if (res.getJSONArray("data").size > 0) {
+        return res.getJSONArray("data").getJSONObject(0).getString("bvid")
+    }
+
+    return null
 }

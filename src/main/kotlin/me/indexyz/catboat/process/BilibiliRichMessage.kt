@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject
 import me.indexyz.catboat.utils.getBVFromUrl
 import me.indexyz.catboat.utils.parseUrl
 import me.indexyz.catboat.utils.queryVideo
+import me.indexyz.catboat.utils.searchVideo
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.event.subscribeMessages
 import net.mamoe.mirai.message.MessageEvent
@@ -60,11 +61,18 @@ object BilibiliRichMessage {
         }
 
         val detail = meta.getJSONObject("detail_1")
-        val url = detail.getString("qqdocurl")
+        if (detail.containsKey("qqdocurl")) {
+            val url = detail.getString("qqdocurl")
 
-        val bv = parseUrl(url)?.let { getBVFromUrl(it) }
+            val bv = parseUrl(url)?.let { getBVFromUrl(it) }
 
+            processBV(bv, event)
+            return
+        }
+
+        val bv = searchVideo(detail.getString("desc"))
         processBV(bv, event)
+        // Search video
     }
 
     private suspend fun processBV(bvNumber: String?, event: MessageEvent) {
