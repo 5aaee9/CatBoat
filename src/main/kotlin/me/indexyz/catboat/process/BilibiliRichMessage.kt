@@ -36,13 +36,15 @@ object BilibiliRichMessage {
     }
 
     private fun isTargetMessage(message: JSONObject): Boolean {
+        if (message.getString("prompt") == "[QQ小程序]哔哩哔哩") {
+            return true
+        }
+
         if (!message.containsKey("appID")) {
             return false
         }
 
-        val appId = message.getString("appID")
-
-        if (appId == "100951776" || appId == "1109937557") {
+        if (message.getString("appID") == "100951776") {
             return true
         }
 
@@ -69,7 +71,6 @@ object BilibiliRichMessage {
             processBV(bv, event)
             return
         }
-
         val bv = searchVideo(detail.getString("desc"))
         processBV(bv, event)
         // Search video
