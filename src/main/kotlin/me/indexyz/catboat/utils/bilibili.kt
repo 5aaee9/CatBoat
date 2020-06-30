@@ -5,10 +5,8 @@ import com.alibaba.fastjson.JSONObject
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.Headers
 import com.github.kittinunf.fuel.httpGet
-import java.net.URL
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.util.stream.Stream
 
 const val USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36"
 const val USER_INFO_API = "https://api.bilibili.com/x/space/acc/info?mid=%d"
