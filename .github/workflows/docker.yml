@@ -11,6 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - name: Install java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '8.0.x'
+        java-package: jdk
+        architecture: x64
+
+    - name: Run test
+      run: ./gradlew test
+
+    - name: Build result jar
+      run: ./gradlew shadowJar
 
     - name: Login to docker hub
       uses: actions-hub/docker/login@master
